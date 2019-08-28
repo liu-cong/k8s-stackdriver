@@ -41,6 +41,10 @@ type SourceConfig struct {
 	MetricsPrefix        string
 }
 
+func (s *SourceConfig) ToString() string {
+	return fmt.Sprintf("%+v, PodConfig: %s", s, s.PodConfig.ToString())
+}
+
 const defaultMetricsPath = "/metrics"
 
 var validWhitelistedLabels = map[string]bool{"containerNameLabel": true, "namespaceIdLabel": true, "podIdLabel": true}
@@ -88,6 +92,7 @@ func newSourceConfig(component, protocol, host, port, path string, auth AuthConf
 
 // parseSourceConfig creates a new SourceConfig based on the provided flags.Uri instance.
 func parseSourceConfig(uri flags.Uri, podId, namespaceId string) (*SourceConfig, error) {
+	glog.Infof("~~~~~ parseSourceConfig, uri:%+v", uri)
 	host, port, err := net.SplitHostPort(uri.Val.Host)
 	if err != nil {
 		return nil, err
@@ -95,6 +100,7 @@ func parseSourceConfig(uri flags.Uri, podId, namespaceId string) (*SourceConfig,
 
 	component := uri.Key
 	values := uri.Val.Query()
+	glog.Infof("~~~~~ values: %+v", values)
 	protocol := uri.Val.Scheme
 	path := uri.Val.Path
 	whitelisted := values.Get("whitelisted")
@@ -103,6 +109,7 @@ func parseSourceConfig(uri flags.Uri, podId, namespaceId string) (*SourceConfig,
 	containerNamelabel := values.Get("containerNamelabel")
 	metricsPrefix := values.Get("metricsPrefix")
 	auth, err := parseAuthConfig(uri.Val)
+	glog.Infof("~~~~~ container: %+v, pod:%+v, namespace: %+v", containerNamelabel, podIdLabel, namespaceIdLabel)
 	if err != nil {
 		return nil, err
 	}
@@ -122,6 +129,7 @@ func (config *SourceConfig) UpdateWhitelistedMetrics(list []string) {
 
 // SourceConfigsFromFlags creates a slice of SourceConfig's base on the provided flags.
 func SourceConfigsFromFlags(source flags.Uris, podId *string, namespaceId *string, defaultMetricsPrefix string) []*SourceConfig {
+	glog.Infof("~~~~~ SourceFromFlags, source:%+v, podID: %v, ns:%v, prefix:%v", source, *podId, *namespaceId, defaultMetricsPrefix)
 	var sourceConfigs []*SourceConfig
 	for _, c := range source {
 		if sourceConfig, err := parseSourceConfig(c, *podId, *namespaceId); err != nil {

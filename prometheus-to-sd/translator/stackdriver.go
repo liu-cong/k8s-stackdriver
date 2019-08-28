@@ -35,6 +35,15 @@ const (
 
 // SendToStackdriver sends http request to Stackdriver to create the given timeseries.
 func SendToStackdriver(service *v3.Service, config *config.CommonConfig, ts []*v3.TimeSeries, scrapeTimestamp time.Time) {
+
+	glog.Infof("~~~~~~~~Sending metrics to SD: %+v", ts)
+	for _, t := range ts {
+		glog.Infof("##### Resource: %+v, Metric: %+v, Kind: %v", t.Resource, t.Metric, t.MetricKind)
+		for i, p := range t.Points {
+			glog.Infof("Point #%d: %+v", i, p)
+		}
+	}
+
 	if len(ts) == 0 {
 		glog.V(3).Infof("No metrics to send to Stackdriver for component %v", config.SourceConfig.Component)
 		return

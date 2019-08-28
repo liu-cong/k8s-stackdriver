@@ -461,12 +461,18 @@ func createProjectName(config *config.GceConfig) string {
 }
 
 func getMonitoredResourceFromLabels(config *config.CommonConfig, labels []*dto.LabelPair) *v3.MonitoredResource {
+	glog.Infof("~~~~~ getMonitoredResourceFromLabels, config: %+v", *config)
+	for _, l := range labels {
+		glog.Infof("~~~~~ getMonitoredResourceFromLabels, name:%v, value:%v, unrec: %v", l.Name, l.Value, l.XXX_unrecognized)
+	}
 	container, pod, namespace := config.SourceConfig.PodConfig.GetPodInfo(labels)
+	glog.Infof("~~~~~ getMonitoredResourceFromLabels, container: %v, pod: %v, ns: %v", container, pod, namespace)
 
+	var mr *v3.MonitoredResource
 	switch config.GceConfig.MonitoredResourceTypes {
 	case "k8s":
 		if namespace == "" && pod == "" && container == "machine" {
-			return &v3.MonitoredResource{
+			mr = &v3.MonitoredResource{
 				Type: "k8s_node",
 				Labels: map[string]string{
 					"project_id":   config.GceConfig.Project,
@@ -477,7 +483,7 @@ func getMonitoredResourceFromLabels(config *config.CommonConfig, labels []*dto.L
 			}
 		}
 
-		return &v3.MonitoredResource{
+		mr = &v3.MonitoredResource{
 			Type: "k8s_container",
 			Labels: map[string]string{
 				"project_id":     config.GceConfig.Project,
@@ -489,7 +495,7 @@ func getMonitoredResourceFromLabels(config *config.CommonConfig, labels []*dto.L
 			},
 		}
 	case "gke_container":
-		return &v3.MonitoredResource{
+		mr = &v3.MonitoredResource{
 			Type: "gke_container",
 			Labels: map[string]string{
 				"project_id":     config.GceConfig.Project,
@@ -503,5 +509,6 @@ func getMonitoredResourceFromLabels(config *config.CommonConfig, labels []*dto.L
 		}
 	}
 
-	return nil
+	glog.Infof("~~~~ Monitored resource: %+v", mr)
+	return mr
 }

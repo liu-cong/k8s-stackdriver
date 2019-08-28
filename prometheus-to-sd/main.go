@@ -151,7 +151,7 @@ func main() {
 	}
 
 	for _, sourceConfig := range sourceConfigs {
-		glog.V(4).Infof("Starting goroutine for %+v", sourceConfig)
+		glog.Infof("Starting goroutine for %+v", sourceConfig.ToString())
 
 		// Pass sourceConfig as a parameter to avoid using the last sourceConfig by all goroutines.
 		go readAndPushDataToStackdriver(stackdriverService, gceConf, sourceConfig)

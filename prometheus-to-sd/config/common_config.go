@@ -17,6 +17,7 @@ limitations under the License.
 package config
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/url"
 	"strings"
@@ -31,6 +32,8 @@ type PodConfig interface {
 
 	// GetPodInfo returns the information required to identify the pod.
 	GetPodInfo(labels []*dto.LabelPair) (containerName, podId, namespaceId string)
+
+	ToString() string
 }
 
 // NewPodConfig returns a PodConfig which uses for the provided pod, namespace and container label values,
@@ -52,6 +55,11 @@ type podConfigImpl struct {
 	namespaceIdLabel   string
 	containerNameLabel string
 }
+
+func (p *podConfigImpl) ToString() string {
+	return fmt.Sprintf("%+v", p)
+}
+
 
 func (p *podConfigImpl) IsMetricLabel(labelName string) bool {
 	return labelName != p.podIdLabel && labelName != p.containerNameLabel && labelName != p.namespaceIdLabel

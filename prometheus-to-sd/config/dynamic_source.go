@@ -21,6 +21,7 @@ const (
 
 // SourceConfigsFromDynamicSources takes pod specifications from the Kubernetes API and maps them to source configs.
 func SourceConfigsFromDynamicSources(gceConfig *GceConfig, sources []flags.Uri) ([]*SourceConfig, error) {
+	glog.Infof("~~~~~ SourceConfigsFromDynamicSources, gceConfig:%+v, sources: %+v", gceConfig, sources)
 	if len(sources) == 0 {
 		return nil, nil
 	}
@@ -85,6 +86,7 @@ func createOptionsForPodSelection(nodeName string, sources map[string]url.URL) v
 }
 
 func getConfigsFromPods(pods []core.Pod, sources map[string]url.URL) []*SourceConfig {
+	glog.Infof("~~~~~ getConfigsFromPods, pods:%+v, sources: %+v", pods, sources)
 	var sourceConfigs []*SourceConfig
 	for _, pod := range pods {
 		componentName := pod.Labels[nameLabel]
@@ -111,6 +113,7 @@ func mapToSourceConfig(componentName string, url url.URL, ip string, podId, name
 		return nil, err
 	}
 	podConfig := NewPodConfig(podId, namespaceId, podIdLabel, namespaceIdLabel, containerNamelabel)
+	glog.Infof("~~~~~ podConfig: %v", podConfig.ToString())
 	whitelistedLabelsMap, err := parseWhitelistedLabels(url.Query().Get("whitelistedLabels"))
 	if err != nil {
 		return nil, err
